@@ -18,9 +18,10 @@ def lastSubtitleAtTime(captions, time):
         return captions[len(captions) - 1]
 
 def subtitlesAfter(captions, start):
-    between = filter(lambda x: x['start'] >= start, captions)
+    between = filter(lambda x: x['start'] > start, captions)
     return list(map(lambda x : x['text'], between))
 
 def subtitlesBetween(captions, start, end):
     between = filter(lambda x: x['start'] <= end and x['end'] >= start, captions)
-    return list(map(lambda x : x['text'], between))
+    rest = filter(lambda x: x['start'] > end, captions)
+    return (list(map(lambda x : x['text'], between)), rest)

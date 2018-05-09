@@ -55,13 +55,14 @@ def getSubtitlesForFrame(captions, currentFrame, nextFrame):
     frame = currentFrame['frame']
     start = currentFrame['time']
     test = []
+    rest = []
     if (nextFrame):
         end = nextFrame['time']
-        text = interpretVtt.subtitlesBetween(captions, start, end)    
+        text, rest = interpretVtt.subtitlesBetween(captions, start, end)    
     else:
         text = interpretVtt.subtitlesAfter(captions, start)
     fullText = "\n".join(text)
-    return fullText
+    return (fullText, rest)
 
 def interpretVideo(videoFile, subtitleFile):
     captions = interpretVtt.read(subtitleFile)
@@ -73,7 +74,8 @@ def interpretVideo(videoFile, subtitleFile):
     for i in range(0, len(capturedFrames)):
         currentFrame = capturedFrames[i]
         nextFrame = capturedFrames[i + 1] if i + 1 < len(capturedFrames) else None
-        fullText = getSubtitlesForFrame(captions, currentFrame, nextFrame)
+        # consume captions
+        fullText, captions = getSubtitlesForFrame(captions, currentFrame, nextFrame)
         frames.append({'frame': currentFrame['frame'], 'text': fullText})
 
     return frames
