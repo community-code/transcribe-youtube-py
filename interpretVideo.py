@@ -31,19 +31,27 @@ def readFrames(videoFile):
 
         durationEstimate = float(lengthEstimate) / float(fps) # seconds
         minutesEstimate = math.floor(durationEstimate / 60)
-        sampleEvery = math.floor(lengthEstimate/minutesEstimate)
-        sampleNumber = minutesEstimate
-
+        sampleEvery = math.floor(15*fps)
+        #sampleNumber = 
 
         capturedFrames = []
-        for i in range(0,sampleNumber):
-            frameNumber = i * sampleEvery
-            cap.set(cv2.CAP_PROP_POS_FRAMES, frameNumber)
+        i = 0
+        while True:
             ret, frame = cap.read()
-
             if not ret:
                 break
-            capturedFrames.append({'frame': frame, 'frameNumber': frameNumber, 'time': frameNumberToDateTime(frameNumber, fps)})
+            
+            if (i % sampleEvery == 0):
+                capturedFrames.append({'frame': frame, 'frameNumber': i, 'time': frameNumberToDateTime(i, fps)})
+            i += 1
+        # for i in range(0,sampleNumber):
+        #     frameNumber = i * sampleEvery
+        #     cap.set(cv2.CAP_PROP_POS_FRAMES, frameNumber)
+        #     ret, frame = cap.read()
+
+        #     if not ret:
+        #         break
+        #     capturedFrames.append({'frame': frame, 'frameNumber': frameNumber, 'time': frameNumberToDateTime(frameNumber, fps)})
         
         return capturedFrames
 
@@ -54,7 +62,7 @@ def readFrames(videoFile):
 def getSubtitlesForFrame(captions, currentFrame, nextFrame):
     frame = currentFrame['frame']
     start = currentFrame['time']
-    test = []
+    text = []
     rest = []
     if (nextFrame):
         end = nextFrame['time']

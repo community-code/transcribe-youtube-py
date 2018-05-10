@@ -24,4 +24,4 @@ def subtitlesAfter(captions, start):
 def subtitlesBetween(captions, start, end):
     between = filter(lambda x: x['start'] <= end and x['end'] >= start, captions)
     rest = filter(lambda x: x['start'] > end, captions)
-    return (list(map(lambda x : x['text'], between)), rest)
+    return (list(map(lambda x : x['text'], between)), list(rest))

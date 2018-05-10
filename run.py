@@ -1,21 +1,19 @@
 from getVideo import getVideo
 from interpretVideo import interpretVideo
+from createHtml import createHtml
 import cv2
-import math
-import datetime
-import os.path
+import shutil
 
-url = "https://www.youtube.com/watch?v=XJGiS83eQLk"
+url = "https://www.youtube.com/watch?v=rlB602TNSqU"
+
+id = "rlB602TNSqU"
 
 files = getVideo(url)
 
-frames = interpretVideo(files['video'], files['subtitles'])
-
-cwd = os.getcwd()
-
-for i in range(0, len(frames)):
-    cv2.imwrite(os.path.join("out", str(i) + ".png"), frames[i]['frame'])
-    with open(os.path.join(cwd, "out", str(i) + ".txt"), "w") as text_file:
-        text_file.write(frames[i]['text'])
-    
-cv2.destroyAllWindows()
+try:
+    frames = interpretVideo(files['video'], files['subtitles'])
+    createHtml(frames, id)
+finally:
+    cv2.destroyAllWindows()
+    if (files and files['dir']):
+        shutil.rmtree(files['dir'])

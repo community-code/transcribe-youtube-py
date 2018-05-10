@@ -1,6 +1,9 @@
 import youtube_dl
 import re
 import json
+import tempfile
+import os
+import shutil
 
 class MyLogger(object):
     def __init__(self):
@@ -43,13 +46,29 @@ def getVideo(url):
         'logger': logger,
         'subtitlesformat':'vtt',
         'format': 'webm',
-        'forcejson': True
+        'forcejson': True,
+        'writeautomaticsub': True
     }
 
-    with youtube_dl.YoutubeDL(ydl_opts) as ydl:
-        ydl.download([url])
-    
-    if (len(finished_files) == 1 and logger.files['subtitles'] != None):
-        return {"subtitles": logger.files['subtitles'], "video": finished_files[0], "info": logger.files['jsoninfo']}
-    else:
-        return {}
+    prevDir = os.getcwd()
+    # Youtube_dl stores the files in the cwd so change it to a temp dir
+    dir = tempfile.mkdtemp(prefix="youtube_")
+    print("Creating dir %s" % (dir))
+    try:
+        os.chdir(dir)
+        try: 
+            with youtube_dl.YoutubeDL(ydl_opts) as ydl:
+                ydl.download([url])
+        finally:
+            os.chdir(prevDir)
+
+        if (len(finished_files) == 1 and 'subtitles' in logger.files):
+            videoFile = os.path.join(dir, finished_files[0])
+            subtitlesFile = os.path.join(dir,logger.files['subtitles'])
+            return {"subtitles": subtitlesFile, "video": videoFile, "info": logger.files['jsoninfo'], "dir": dir}
+        else:
+            return {"dir": dir}
+    except:
+        #Clean up directory if an exception occurs before we return
+        shutil.rmtree(dir)
+        raise
